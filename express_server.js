@@ -20,6 +20,12 @@ function generateRandomString(length) {
 
 app.use(express.urlencoded({ extended: true }));
 
+app.post("/login", (req, res) => {
+  const { username } = req.body;
+  res.cookie("username", username);
+  res.redirect("/urls"); 
+});
+
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.longURL;
