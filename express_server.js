@@ -20,6 +20,13 @@ function generateRandomString(length) {
 
 app.use(express.urlencoded({ extended: true }));
 
+app.post("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const newLongURL = req.body.longURL;
+  urlDatabase[id] = newLongURL;
+  res.redirect("/urls");
+});
+
 app.post("/urls/:id/delete", (req, res) => {
 delete urlDatabase[req.params.id];
 res.redirect("/urls");
