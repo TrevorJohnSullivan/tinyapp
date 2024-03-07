@@ -58,6 +58,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomString}`);
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies ["username"]
+  };
+  res.render("register", templateVars);
+});
+
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     username: req.cookies ["username"]
