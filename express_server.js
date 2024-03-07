@@ -23,6 +23,11 @@ function generateRandomString(length) {
 
 app.use(express.urlencoded({ extended: true }));
 
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
+
 app.post("/login", (req, res) => {
   const { username } = req.body;
   res.cookie("username", username);
