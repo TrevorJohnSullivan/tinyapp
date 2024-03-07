@@ -65,6 +65,16 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send("Email and password cannot be empty");
+    return;
+  }
+  for (const userId in users) {
+    if (users[userId].email === req.body.email) {
+      res.status(400).send("Email already exists");
+      return;
+    }
+  }
   const userID = generateRandomString(12);
   const newUser = {
     id: userID,
