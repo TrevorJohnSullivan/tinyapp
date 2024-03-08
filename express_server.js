@@ -47,12 +47,20 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
+
 app.post("/login", (req, res) => {
-  const { email } = req.body;
-const user = getUserByEmail(email)
-const userId = user.id
+  const user = getUserByEmail(req.body.email);
+  if (!user) {
+    res.status(403).send("Email address not found");
+    return;
+  }
+  if (user.password !== req.body.password) {
+    res.status(403).send("Incorrect password");
+    return;
+  }
+  const userId = user.id;
   res.cookie("user_id", userId);
   res.redirect("/urls");
 });
