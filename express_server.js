@@ -79,6 +79,10 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+  if (!longURL) {
+    res.status(404).send("<html><body>Shortened URL not found.</body></html>");
+    return;
+  }
   res.redirect(longURL);
 });
 
@@ -106,6 +110,10 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    res.status(403).send("<html><body>You need to be logged in to create a new URL.</body></html>");
+    return;
+  }
   const randomString = generateRandomString(6);
   urlDatabase[randomString] = req.body.longURL;
   res.redirect(`/urls/${randomString}`);
@@ -134,6 +142,10 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    res.redirect("/login");
+    return;
+  }
   const templateVars = {
     user: users[req.cookies["user_id"]]
   };
