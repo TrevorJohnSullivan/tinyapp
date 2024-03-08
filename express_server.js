@@ -34,16 +34,26 @@ function generateRandomString(length) {
   return randomString;
 }
 
+function getUserByEmail(email) {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId];
+    }
+  }
+  return null
+}
+
 app.use(express.urlencoded({ extended: true }));
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
-
 app.post("/login", (req, res) => {
-  const { username } = req.body;
-  res.cookie("user_id", username);
+  const { email } = req.body;
+const user = getUserByEmail(email)
+const userId = user.id
+  res.cookie("user_id", userId);
   res.redirect("/urls");
 });
 
@@ -98,6 +108,13 @@ app.get("/register", (req, res) => {
     user: users[req.cookies["user_id"]]
   };
   res.render("register", templateVars);
+});
+
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  };
+  res.render("login", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
