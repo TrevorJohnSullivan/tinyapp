@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieSession = require("cookie-session")
 const bcrypt = require("bcryptjs");
+const getUserByEmail = require('./helpers');
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -44,15 +45,6 @@ function generateRandomString(length) {
   return randomString;
 }
 
-function getUserByEmail(email) {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
-    }
-  }
-  return null;
-}
-
 function urlsForUser(id) {
   const filteredURLs = {};
   for (const key in urlDatabase) {
@@ -71,7 +63,7 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const user = getUserByEmail(req.body.email);
+  const user = getUserByEmail(req.body.email, users);
   if (!user) {
     res.status(403).send("Email address not found");
     return;
