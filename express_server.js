@@ -125,7 +125,6 @@ app.post("/register", (req, res) => {
   };
   users[userID] = newUser;
   req.session.user_id = userID;
-  console.log(users); // to make sure it is showing properly
   res.redirect("/urls");
 });
 
