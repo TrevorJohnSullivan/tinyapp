@@ -134,6 +134,10 @@ app.post("/urls", (req, res) => {
     res.status(403).send("<html><body>You need to be logged in to create a new URL.</body></html>");
     return;
   }
+  if (!req.body.longURL) {
+    res.status(400).send("<html><body>The URL field cannot be empty.</body></html>");
+    return;
+  }
   const randomString = generateRandomString(6);
   urlDatabase[randomString] = {
     longURL: req.body.longURL,
