@@ -1,16 +1,16 @@
 const express = require("express");
-const cookieSession = require("cookie-session")
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
-const getUserByEmail = require('./helpers');
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
 app.set("view engine", "ejs");
 
 app.use(cookieSession({
   name: 'session',
   keys: ["this is my key value?"],
-}))
+}));
 
 const urlDatabase = {
   b6UTxQ: {
@@ -36,26 +36,11 @@ const users = {
   },
 };
 
-function generateRandomString(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
-  for (let i = 0; i < length; i++) {
-    randomString += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return randomString;
-}
 
-function urlsForUser(id) {
-  const filteredURLs = {};
-  for (const key in urlDatabase) {
-    if (urlDatabase[key].userID === id) {
-      filteredURLs[key] = urlDatabase[key];
-    }
-  }
-  return filteredURLs;
-}
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
+
+app.use(express.json());
 
 app.post("/logout", (req, res) => {
   req.session = null;
@@ -195,8 +180,12 @@ app.get("/urls/:id", (req, res) => {
     res.status(403).send("<html><body>You need to be logged in to access this page.</body></html>");
     return;
   }
-  if (!urlDatabase[req.params.id] || urlDatabase[req.params.id].userID !== req.session.user_id) {
-    res.status(404).send("<html><body>URL not found or you don't have permission to access this page.</body></html>");
+  if (!urlDatabase[req.params.id]) {
+    res.status(404).send("<html><body>URL not found.</body></html>");
+    return;
+  }
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+    res.status(403).send("<html><body>You don't have permission to access this page.</body></html>");
     return;
   }
   const templateVars = {
@@ -212,7 +201,7 @@ app.get("/urls", (req, res) => {
     res.status(403).send("<html><body>You need to be logged in to see URLs.</body></html>");
     return;
   }
-  const userURLs = urlsForUser(req.session.user_id);
+  const userURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = {
     urls: userURLs,
     user: users[req.session.user_id]
@@ -221,7 +210,10 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (req.session.user_id) {
+    return res.redirect("/urls");
+  }
+  res.status(302).redirect("/login");
 });
 
 app.get("/urls.json", (req, res) => {
