@@ -40,8 +40,6 @@ describe('getUserByEmail', function() {
 });
 
 
-
-
 // provded by instructions
 describe("Login and Access Control Test", () => {
   it('should return 403 status code for unauthorized access to "http://localhost:8080/urls/b2xVn2"', () => {
